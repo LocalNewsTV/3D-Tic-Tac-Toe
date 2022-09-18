@@ -112,7 +112,7 @@ def boardGame():
                     userRequest = str(userRequest[1:])
                     requestArray = [int(userRequest[LAYER]), int(userRequest[ROW]), int(userRequest[COLUMN]), int(userRequest[TOKEN])]
                     serverResponse = usersMove(requestArray, gameBoard, currentToken)
-                    if userRequest[COMMAND] == 'O':
+                    if serverResponse[COMMAND] == 'O':
                         currentToken = updateToken(currentToken)
                 elif userRequest == 'C':
                     gameBoard = setUpBoard()
