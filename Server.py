@@ -7,10 +7,10 @@ HOST = ''
 PORT = 12345
 
 COMMAND = 0
-LAYER = 1
-ROW = 2
-COLUMN = 3
-TOKEN = 4
+LAYER = 0
+ROW = 1
+COLUMN = 2
+TOKEN = 3
 TOKEN_START = 1
 TOKEN_MAX = 3
 MATCH_ONCE_ONLY = 1
@@ -109,6 +109,7 @@ def boardGame():
                 if(userRequest == 'G'):
                     serverResponse = displayBoard(gameBoard)
                 elif userRequestMove:
+                    userRequest = str(userRequest[1:])
                     requestArray = [int(userRequest[LAYER]), int(userRequest[ROW]), int(userRequest[COLUMN]), int(userRequest[TOKEN])]
                     serverResponse = usersMove(requestArray, gameBoard, currentToken)
                     if userRequest[COMMAND] == 'O':
