@@ -16,26 +16,32 @@ def calledByThread(id, sc, game, logger, locks):
         try:
             while True:
                 dataList = list(sc.recv(BUF_SIZE).decode().strip().upper())
-                logger.debug(dataList)
-                if(dataList[LAST] == "*"):
+                logger.debug("User sent" + str(dataList))
+                if(len(dataList) > 0 and dataList[LAST] == "*"):
                     logger.debug("Valid command")
-                    if(dataList[FIRST] == "P"):
-                        if (id == game.getToken()):
-                            response = game.gamePlay(int(id), dataList)
-                            if response != 'E':
-                                locks[id -1].acquire()
-                                locks[id % MAX_PLAYERS].release()
+                    if(dataList[FIRST] == "P" and id == dataList[4]):
+                        if (game.checkPositionAvailable(dataList)):
+                            logger.debug("P - Locking Player, making move")
+                            locks[id -1].acquire()
+                            response = game.gamePlay(id, dataList)
+                            logger.debug("Releasing next player")
+                            locks[id % MAX_PLAYERS].release()
                         else:
+                            logger.debug("P - was invalid")
                             response = 'E'
                     elif(dataList[FIRST] == 'C'):
+                        logger.debug("C - Clearing Board")
                         locks[0].release()
-                        response = game.gamePlay(int(id), dataList)
+                        response = game.gamePlay(id, dataList)
+                    elif(dataList[FIRST] == '*'):
+                        response = 'E'
                     else:
-                        response = game.gamePlay(int(id), dataList)
+                        logger.debug("Sent non P/C Command")
+                        response = game.gamePlay(id, dataList)
                 else:
-                    logger.debug("Bad command")
+                    logger.debug("Bad command, no *")
                     response = 'E'
-                logger.debug("Response>" + response)
+                logger.debug("responded with:" + response)
                 sc.sendall((response + '*').encode('utf-8')) # Dest. IP and port implicit due to accept call
         except Exception as details:
             traceback.print_exc()
@@ -61,7 +67,7 @@ def startGame():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock: # TCP socket
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((HOST, PORT)) # Claim messages sent to port "PORT"
-        sock.listen(1) # Enable server to receive 1 connection at a time
+        sock.listen(3) # Enable server to receive 1 connection at a time
         logger.debug('Server:' + str(sock.getsockname())) # Source IP and port
         while True:
             try:

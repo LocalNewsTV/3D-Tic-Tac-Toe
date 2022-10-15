@@ -73,17 +73,32 @@ class GameBoard:
             return True
         else:
             return False
+
+
+    def checkPositionAvailable(self, data):
+        turn = data.copy()
+        turn.pop()
+        userRequestedTurn = len(re.findall('^P[0-3][0-3][0-3][0-3]$', ('').join(turn))) == self.MATCH_ONCE_ONLY
+        turn.pop(0)
+        layer, row, column, token = turn 
+        if(userRequestedTurn):
+            return self._board[int(layer)][int(row)][int(column)] == '_'
+        else:
+            return False
     ###########################################################################
     #
     #
     ###########################################################################
     def gamePlay(self, id, userTurn):
-        userTurn.pop()
+        if(len(userTurn) > 1):
+            userTurn.pop()
+        else:
+            return 'O'
         userRequestedTurn = len(re.findall('^P[0-3][0-3][0-3][0-3]$', ('').join(userTurn))) == self.MATCH_ONCE_ONLY
 
         if (userRequestedTurn and self._currentTurn == id and int(userTurn[self.ID]) == id):
             self._command = [int(userTurn[1]),int(userTurn[2]),int(userTurn[3]), int(userTurn[4])]
-            if self._winner == False and self.makePlayerMove():
+            if (self._winner == False and self.makePlayerMove()):
                 self.updateTurn()
                 self.checkForWins()
                 return 'O'
@@ -182,5 +197,5 @@ class GameBoard:
             self._winnerID = self._command[self.ID -1]
             
 
-    def getToken(self):
+    def checkWhoseTurn(self):
         return self._currentTurn
