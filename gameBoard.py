@@ -1,9 +1,11 @@
 #!/usr/bin/python3
+
 #############################################################################
 #    Author: Matthew Logan
 #    Student Number: C0404259
 #    Class: ICS226, Fall 2022
 #    Description: Class Object for game of 3D Tic Tac Toe using 4x4x4 grid
+#    Parameters: NUM_PLAYERS {integer} - Number of players in this session
 #############################################################################
 import re
 class GameBoard:
@@ -12,21 +14,20 @@ class GameBoard:
     MATCH_ONCE_ONLY = 1
     GRID_SIZE = 4
     ID = 4
-    MINIMUM_TURNS_TO_WIN = 10
     
     def __init__(self, NUM_PLAYERS,):
-        self._NUM_PLAYERS = NUM_PLAYERS
         self._TOKEN_MAX = NUM_PLAYERS
         self._board = self.setUpBoard()
         self._currentTurn = 1
-        self._command = []
+        self._playerInput = []
         self._isWinner = False
         self._winnerID = None
         self._turnsTaken = 0
+        self._MINIMUM_TURNS_TO_WIN = (NUM_PLAYERS * 3) + 1
 
     ###########################################################################
     # @description - Creates a stringified copy of the game board
-    # @returns {String} - Easily readable stringified version of our gameBoard array
+    # @returns {String} - readable stringified version of our gameBoard
     ###########################################################################
     def displayGameBoard(self):
         boardString = ""
@@ -49,14 +50,6 @@ class GameBoard:
     def setUpBoard(self):
         return [[['_' for _ in range(self.GRID_SIZE)]for _ in range(self.GRID_SIZE)] for _ in range(self.GRID_SIZE) ] 
 
-    ###########################################################################
-    # @desc - adjusts integer for keeping track of player turn
-    ###########################################################################
-    def updateTurn(self):
-        self._currentTurn += 1
-        if self._currentTurn > self._TOKEN_MAX:
-            self._currentTurn = self.TOKEN_START 
-
     ##########################################################################
     # @desc - Sets up board for a new game to be played
     ###########################################################################
@@ -67,12 +60,27 @@ class GameBoard:
         self._winnerID = None
         self._turnsTaken = 0
 
+
+    ###########################################################################
+    # @desc - Returns ID of player that will play next
+    ###########################################################################
+    def checkWhoseTurn(self):
+        return self._currentTurn
+
+    ###########################################################################
+    # @desc - adjusts integer for keeping track of player turn
+    ###########################################################################
+    def updateTurn(self):
+        self._currentTurn += 1
+        if self._currentTurn > self._TOKEN_MAX:
+            self._currentTurn = self.TOKEN_START 
+
     ###########################################################################
     # @desc - Checks the space selected by user for "_", then places Token
     # @returns {boolean} - turn successful
     ###########################################################################
     def makePlayerMove(self):
-        layer, row, column, token = self._command 
+        layer, row, column, token = self._playerInput 
         if self._board[layer][row][column] == '_':
             self._board[layer][row][column] = token
             return True
@@ -80,9 +88,9 @@ class GameBoard:
             return False
 
     ###########################################################################
-    # @desc - Method for server to directly call, validates that player is 
-    #       requesting a valid move, before semaphores are adjusted
-    # @returns {boolean} - the specified on the board is available
+    # @desc - Method for server to directly call, confirms that player is 
+    #         requesting a valid move, before semaphores are adjusted
+    # @returns {boolean} - the specified space on the board is available
     ###########################################################################
     def checkPositionAvailable(self, data):
         userRequestedTurn = len(re.findall('^P[0-3][0-3][0-3][0-3]$', ('').join(turn))) == self.MATCH_ONCE_ONLY
@@ -100,7 +108,7 @@ class GameBoard:
     # @return - {boolean} if a win condition was met horizontally
     ###########################################################################
     def testHorizontalWin(self,):
-        layer, row, column, token = self._command
+        layer, row, column, token = self._playerInput
         def test1():    
             #In single layer
             for data in self._board[layer][row]:
@@ -135,7 +143,7 @@ class GameBoard:
     # @return - {boolean} if a win condition was met vertically
     ###########################################################################
     def testVerticalWin(self):
-        layer, row, column, token = self._command
+        layer, row, column, token = self._playerInput
         def test1():
             #in one layer
             for i in range(self.GRID_SIZE):
@@ -165,7 +173,7 @@ class GameBoard:
     # @return - {boolean} if a win condition was met vertically on any plane
     ###########################################################################
     def testDiagonalWin(self):
-        layer, row, column, token = self._command
+        layer, row, column, token = self._playerInput
         def test1():
             #Left to right across all boards    
             for i in range(self.GRID_SIZE):
@@ -219,36 +227,34 @@ class GameBoard:
     ###########################################################################
     def checkForWins(self):
         self._turnsTaken += 1
-        if self._turnsTaken >= self.MINIMUM_TURNS_TO_WIN:
+        if self._turnsTaken >= self._MINIMUM_TURNS_TO_WIN:
             if self.testDiagonalWin() or self.testHorizontalWin() or self.testVerticalWin():
                 self._isWinner = True
-                self._winnerID = self._command[self.ID -1]
+                self._winnerID = self._playerInput[self.ID -1]
             
-    ###########################################################################
-    # @desc - Returns ID of player that will play next
-    ###########################################################################
-    def checkWhoseTurn(self):
-        return self._currentTurn
-
     ###########################################################################
     # @desc - Main turn control for the TTT Board. Handles:
     #               "P" - Handling Players Turns      
     #               "C" - Resetting the Game
     #               "G" - Sending a readable copy of the Board
+    # @param id {Integer} - ID of the player submitting a turn
+    # @param userTurn {Array} - Command received by player, formatted as an array
     ###########################################################################
     def gamePlay(self, id, userTurn):
         userRequestedTurn = len(re.findall('^P[0-3][0-3][0-3][0-3]$', ('').join(userTurn))) == self.MATCH_ONCE_ONLY
         
         if (userRequestedTurn and self._currentTurn == id and int(userTurn[self.ID]) == id):
             userTurn.pop(0) #Remove the P from {userTurn}
-            self._command = list(map(int, userTurn))
+            self._playerInput = list(map(int, userTurn))
             if (not self._isWinner and self.makePlayerMove()):
                 self.updateTurn()
                 self.checkForWins()
                 return 'O'
             return 'E'
+
         elif (userTurn[self.COMMAND] == 'G'):
             return self.displayGameBoard()
+            
         elif (userTurn[self.COMMAND] == 'C'):
             self.newGame()
             return 'O'

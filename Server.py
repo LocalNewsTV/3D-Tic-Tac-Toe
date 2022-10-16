@@ -100,7 +100,7 @@ def startGame():
                     threading.Thread(target = calledByThread, args = (currentToken, sc, gameInstance, logger, locks)).start()
                     userConnections.append(sc)
                     currentToken += 1
-                    if(currentToken > 3):
+                    if(currentToken > MAX_PLAYERS):
                         locks[0].release()
                 else:
                     logger.debug('Rejected Connection')
