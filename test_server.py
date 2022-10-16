@@ -2,7 +2,6 @@ import pytest
 import subprocess
 import time
 import socket
-import logging, logging.handlers
 
 #
 # DO NOT CHANGE THE CODE BELOW
@@ -13,16 +12,10 @@ OK = b'O'
 END = b'*'
 REJECT = b'R'
 
-
 BUF_SIZE = 1024
 HOST = '127.0.0.1'
 PORT = 12345
 connections = []
-
-logger = logging.getLogger('client.py')
-logger.setLevel(logging.DEBUG)
-handler = logging.handlers.SysLogHandler(address = '/dev/log')
-logger.addHandler(handler)
 
 def setup_cnx():
     print('Client starting')
@@ -92,17 +85,14 @@ def transmit(client, message):
 #
 
 def test_invalid_command():
-    logger.debug("\n\nTesting Invalid Command")
     output = transmit(0, 'Test') # invalid command
     assert output == ERROR
 
 def test_get_board_command():
-    logger.debug("\n\nTesting Get Board Command")
     output = transmit(0, 'G')
     assert output == b'____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\nPlayer 1\'s turn'
 
 def test_put_and_clear_commands():
-    logger.debug("\n\nTesting Put and Clear Commands")
     output = transmit(0, 'P1231')
     assert output == OK
     output = transmit(0, 'G')
@@ -113,7 +103,6 @@ def test_put_and_clear_commands():
     assert output == b'____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\nPlayer 1\'s turn'
 
 def test_out_of_sequence_put():
-    logger.debug("\n\nTesting Out of Sequence P's")
     output = transmit(0, 'P1231')
     assert output == OK
     output = transmit(0, 'G')
@@ -140,7 +129,6 @@ def test_out_of_sequence_put():
     assert output == b'____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\nPlayer 1\'s turn'
 
 def test_invalid_layer():
-    logger.debug("\n\nTesting Invalid Layers")
     output = transmit(0, 'P4231') # layer out of range
     assert output == ERROR
     output = transmit(0, 'G')
@@ -149,7 +137,6 @@ def test_invalid_layer():
     assert output == OK
 
 def test_invalid_row():
-    logger.debug("\n\nTesting Invalid Rows")
     output = transmit(0, 'P1431') # row out of range
     assert output == ERROR
     output = transmit(0, 'G')
@@ -158,7 +145,6 @@ def test_invalid_row():
     assert output == OK
 
 def test_invalid_column():
-    logger.debug("\n\nTesting Invalid Columns")
     output = transmit(0, 'P1241') # column out of range
     assert output == ERROR
     output = transmit(0, 'G')
@@ -167,7 +153,6 @@ def test_invalid_column():
     assert output == OK
 
 def test_invalid_token():
-    logger.debug("\n\nTesting Invalid Tokens")
     output = transmit(0, 'P1234') # token out of range
     assert output == ERROR
     output = transmit(0, 'G')
@@ -176,7 +161,6 @@ def test_invalid_token():
     assert output == OK
 
 def test_invalid_put():
-    logger.debug("\n\nTesting Invalid Puts")
     output = transmit(0, 'PABCD') # invalid tokens
     assert output == ERROR
     output = transmit(0, 'G')
@@ -185,7 +169,6 @@ def test_invalid_put():
     assert output == OK
 
 def test_row_within_level_win():
-    logger.debug("\n\nTesting Row within level win")
     output = transmit(0, 'P1231')
     assert output == OK
     output = transmit(0, 'G')
@@ -247,7 +230,6 @@ def test_row_within_level_win():
     assert output == b'____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\nPlayer 1\'s turn'
 
 def test_column_within_level_win():
-    logger.debug("\n\nTesting Column within level Win")
     output = transmit(0, 'P0031')
     assert output == OK
     output = transmit(1, 'P1002')
@@ -275,7 +257,6 @@ def test_column_within_level_win():
     assert output == OK
 
 def test_multiple_threads_or_tasks():
-    logger.debug("\n\n Testing multiple threads or tasks")
     connections[0].sendall(('P1231').encode('utf-8'))
     output = transmit(2, 'G')
     assert output == b'____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\nPlayer 1\'s turn'
@@ -292,7 +273,6 @@ def test_multiple_threads_or_tasks():
     assert output == OK
 
 def test_4_sessions():
-    logger.debug("\n\nTesting Four sessions")
     output = transmit(0, 'G')
     assert output == b'____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\n____\n____\n____\n____\n\nPlayer 1\'s turn'
     output = transmit(1, 'G')
@@ -302,3 +282,54 @@ def test_4_sessions():
     output = transmit(3, 'G')
     assert output == REJECT
 
+def test_diagonal_win_within_level():
+    output = transmit(0, 'P0001')
+    assert output == OK
+    output = transmit(1, 'P1112')
+    assert output == OK
+    output = transmit(2, 'P2223')
+    assert output == OK
+    output = transmit(0, 'P0111')
+    assert output == OK
+    output = transmit(1, 'P1122')
+    assert output == OK
+    output = transmit(2, 'P2233')
+    assert output == OK
+    output = transmit(0, 'P0221')
+    assert output == OK
+    output = transmit(1, 'P3302')
+    assert output == OK
+    output = transmit(2, 'P3313')
+    assert output == OK
+    output = transmit(0, 'P0331')
+    assert output == OK
+    output = transmit(0, 'G')
+    assert output == b'1___\n_1__\n__1_\n___1\n\n____\n_22_\n____\n____\n\n____\n____\n__33\n____\n\n____\n____\n____\n23__\n\nPlayer 1 wins'
+    output = transmit(0, 'C')
+    assert output == OK
+
+def test_diagonal_win_across_level():
+    output = transmit(0, 'P0001')
+    assert output == OK
+    output = transmit(1, 'P1232')
+    assert output == OK
+    output = transmit(2, 'P3213')
+    assert output == OK
+    output = transmit(0, 'P1111')
+    assert output == OK
+    output = transmit(1, 'P2122')
+    assert output == OK
+    output = transmit(2, 'P1213')
+    assert output == OK
+    output = transmit(0, 'P2221')
+    assert output == OK
+    output = transmit(1, 'P3232')
+    assert output == OK
+    output = transmit(2, 'P2323')
+    assert output == OK
+    output = transmit(0, 'P3331')
+    assert output == OK
+    output = transmit(0, 'G')
+    assert output == b'1___\n____\n____\n____\n\n____\n_1__\n_3_2\n____\n\n____\n__2_\n__1_\n__3_\n\n____\n____\n_3_2\n___1\n\nPlayer 1 wins'
+    output = transmit(0, 'C')
+    assert output == OK
