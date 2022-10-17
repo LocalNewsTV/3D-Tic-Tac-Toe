@@ -124,8 +124,8 @@ class GameBoard:
         def test3():
             #From Bottom Layer to Top Layer
             j = self.GRID_SIZE -1
-            for i in range(self.GRID_SIZE -1, -1, -1):
-                if(self._board[j][row][i] != token):
+            for i in range(self.GRID_SIZE):
+                if(self._board[i][row][j] != token):
                     return False
                 j -= 1   
             return True
@@ -134,7 +134,7 @@ class GameBoard:
             for i in range(self.GRID_SIZE):
                 if(self._board[i][row][column] != token):
                     return False  
-                return True
+            return True
         return test1() or test2() or test3() or test4()
 
     ###########################################################################
