@@ -7,7 +7,7 @@
 #############################################################################
 import gameBoard as game
 import traceback, logging, logging.handlers, threading, socket, time
-BUF_SIZE = 1
+BUF_SIZE = 4
 HOST = ''
 PORT = 12345
 TOKEN_START = 1
