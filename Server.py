@@ -56,7 +56,7 @@ def calledByThread(id, sc, game, logger, locks):
                         response = 'E'
                 elif(dataList[FIRST] == 'C'):
                     logger.debug("Player " + str(id) + ": Clearing Board")
-                    locks[0].release()
+                    locks[FIRST].release()
                     response = game.gamePlay(id, dataList)
                 else:
                     response = game.gamePlay(id, dataList)
@@ -88,7 +88,7 @@ def startGame():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock: # TCP socket
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((HOST, PORT)) # Claim messages sent to port "PORT"
-        sock.listen(3) # Enable server to receive 1 connection at a time
+        sock.listen(1) # Enable server to receive 1 connection at a time
         logger.debug('Server:' + str(sock.getsockname())) # Source IP and port
         while True:
             try:
@@ -101,7 +101,7 @@ def startGame():
                     userConnections.append(sc)
                     currentToken += 1
                     if(currentToken > MAX_PLAYERS):
-                        locks[0].release()
+                        locks[FIRST].release()
                 else:
                     logger.debug('Rejected Connection')
                     sc.sendall("R*".encode('utf-8'))
