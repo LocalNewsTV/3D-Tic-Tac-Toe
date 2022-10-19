@@ -7,7 +7,7 @@
 #############################################################################
 import gameBoard as game
 import traceback, logging, logging.handlers, threading, socket, time
-BUF_SIZE = 4
+BUF_SIZE = 1
 HOST = ''
 PORT = 12345
 TOKEN_START = 1
@@ -36,8 +36,8 @@ def calledByThread(id, sc, game, logger, locks):
     with sc:
         try:
             while True:
-                dataList = sc.recv(BUF_SIZE).decode().strip().upper()
-                while (dataList[LAST] != '*'):
+                dataList = ""
+                while (len(dataList) == 0 or dataList[LAST] != '*'):
                     dataList += sc.recv(BUF_SIZE).decode().strip().upper()
                 dataList = list(dataList)
 
@@ -64,6 +64,7 @@ def calledByThread(id, sc, game, logger, locks):
 
         except Exception as details:
             sc.close()
+            logger.debug(details)
 
 
 ######################################################################################################################################################
@@ -80,7 +81,7 @@ def startGame():
     locks = []
     
     logger = logging.getLogger('client.py')
-    logger.setLevel(logging.WARN)
+    logger.setLevel(logging.DEBUG)
     handler = logging.handlers.SysLogHandler(address = '/dev/log')
     logger.addHandler(handler)
 
