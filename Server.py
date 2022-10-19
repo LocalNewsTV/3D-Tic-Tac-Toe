@@ -16,7 +16,7 @@ LAST = -1
 FIRST = 0
 PLAY_TOKEN = 4
 
-######################################################################################################################################################
+################################################################################################################
 # @desc - Controller for each player. Takes input until '*' is received, signalling termination of reply
 #         Server removes * from command and send data to game instance. the server is responsible for:
 #               -Validating the players token matches their id
@@ -30,7 +30,7 @@ PLAY_TOKEN = 4
 # @param(logger) {Object} - Reference to the logger Object, for journaling
 # @param(locks) {Array} - Reference to the locks array, a collection of semaphores
 #
-######################################################################################################################################################
+################################################################################################################
 def calledByThread(id, sc, game, logger, locks):
     response = ""
     with sc:
