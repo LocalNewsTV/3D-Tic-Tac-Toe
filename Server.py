@@ -44,8 +44,8 @@ def calledByThread(id, sc, game, logger, locks):
                 logger.debug("User sent:" + str(dataList))
                 dataList.pop()
                 logger.debug("Valid command")
-                if(dataList[FIRST] == "P" and id == dataList[PLAY_TOKEN]):
-                    if (game.checkPositionAvailable(dataList)):
+                if(dataList[FIRST] == "P" and str(id) == dataList[PLAY_TOKEN]):
+                    if (game.checkPositionAvailable(dataList) and game.checkWhoseTurn() == id):
                         logger.debug("P - Locking Player, making move")
                         locks[id -1].acquire()
                         response = game.gamePlay(id, dataList)
@@ -63,7 +63,6 @@ def calledByThread(id, sc, game, logger, locks):
                 sc.sendall((response + '*').encode('utf-8')) # Dest. IP and port implicit due to accept call
 
         except Exception as details:
-            sc.close()
             logger.debug(details)
 
 

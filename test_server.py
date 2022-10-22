@@ -333,3 +333,29 @@ def test_diagonal_win_across_level():
     assert output == b'1___\n____\n____\n____\n\n____\n_1__\n_3_2\n____\n\n____\n__2_\n__1_\n__3_\n\n____\n____\n_3_2\n___1\n\nPlayer 1 wins'
     output = transmit(0, 'C')
     assert output == OK
+    
+def test_diagonal_win_across_level():
+    output = transmit(0, 'P0031')
+    assert output == OK
+    output = transmit(1, 'P1232')
+    assert output == OK
+    output = transmit(2, 'P3213')
+    assert output == OK
+    output = transmit(0, 'P1121')
+    assert output == OK
+    output = transmit(1, 'P2102')
+    assert output == OK
+    output = transmit(2, 'P1213')
+    assert output == OK
+    output = transmit(0, 'P2211')
+    assert output == OK
+    output = transmit(1, 'P3232')
+    assert output == OK
+    output = transmit(2, 'P2323')
+    assert output == OK
+    output = transmit(0, 'P3301')
+    assert output == OK
+    output = transmit(0, 'G')
+    assert output == b'___1\n____\n____\n____\n\n____\n__1_\n_3_2\n____\n\n____\n2___\n_1__\n__3_\n\n____\n____\n_3_2\n1___\n\nPlayer 1 wins'
+    output = transmit(0, 'C')
+    assert output == OK

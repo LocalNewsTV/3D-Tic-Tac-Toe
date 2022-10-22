@@ -64,7 +64,7 @@ class GameBoard:
     ###########################################################################
     # @desc - Returns ID of player that will play next
     ###########################################################################
-    def _checkWhoseTurn(self):
+    def checkWhoseTurn(self):
         return self._currentTurn
 
     ###########################################################################
@@ -93,11 +93,12 @@ class GameBoard:
     # @returns {boolean} - the specified space on the board is available
     ###########################################################################
     def checkPositionAvailable(self, data):
-        userRequestedTurn = len(re.findall('^P[0-3][0-3][0-3][0-3]$', ('').join(turn))) == self._MATCH_ONCE_ONLY
-        turn.pop(0)
-        turn = list(map(int, data))
-        layer, row, column, token = turn 
+        userRequestedTurn = len(re.findall('^P[0-3][0-3][0-3][0-3]$', ('').join(data))) == self._MATCH_ONCE_ONLY
         if(userRequestedTurn):
+            turn = data.copy()
+            turn.pop(0)
+            turn = list(map(int, turn))
+            layer, row, column, token = turn 
             return self._board[layer][row][column] == '_'
         else:
             return False
