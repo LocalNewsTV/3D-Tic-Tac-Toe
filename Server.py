@@ -77,13 +77,13 @@ class ClientHandler:
                     self._logger.debug("Player ", id, "made turn.")
 
                     if(userInput[self.FIRST] == "P"):
-                        if (GAME_INSTANCE.checkPositionAvailable(userInput)):
-                            response = GAME_INSTANCE.gamePlay(id, userInput)
+                        if (self.TTT.checkPositionAvailable(userInput)):
+                            response = self.TTT.gamePlay(id, userInput)
                         else:
                             self._logger.debug("P - was invalid")
                             response = 'E'
                     else:
-                        response = GAME_INSTANCE.gamePlay(id, userInput)
+                        response = self.TTT.gamePlay(id, userInput)
                     
                     response = (response + '*').encode('utf-8')
                     writer.write(response)
@@ -106,7 +106,7 @@ class ClientHandler:
 #         Initializes both clientHandler and GameBoard objects
 #############################################################################
 async def main():
-        global GAME_INSTANCE
+        GAME_INSTANCE
         GAME_INSTANCE = game.GameBoard(MAX_PLAYERS)
         handler = ClientHandler(GAME_INSTANCE)
         server = await asyncio.start_server(handler.handle_player, HOST, PORT)
