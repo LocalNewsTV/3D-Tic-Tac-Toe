@@ -19,7 +19,7 @@ MAX_PLAYERS = 3
 class ClientHandler:
     FIRST = 0
     LAST = -1
-    def __init__(self, TTT):
+    def __init__(self, TTT, MAX_PLAYERS):
         self._MAX_PLAYERS = MAX_PLAYERS
         self._players = []
         self._gameBoard = TTT
@@ -77,13 +77,13 @@ class ClientHandler:
                     self._logger.debug("Player ", id, "made turn.")
 
                     if(userInput[self.FIRST] == "P"):
-                        if (self.TTT.checkPositionAvailable(userInput)):
-                            response = self.TTT.gamePlay(id, userInput)
+                        if (self._gameBoard.checkPositionAvailable(userInput)):
+                            response = self._gameBoard.gamePlay(id, userInput)
                         else:
                             self._logger.debug("P - was invalid")
                             response = 'E'
                     else:
-                        response = self.TTT.gamePlay(id, userInput)
+                        response = self._gameBoard.gamePlay(id, userInput)
                     
                     response = (response + '*').encode('utf-8')
                     writer.write(response)
@@ -106,9 +106,8 @@ class ClientHandler:
 #         Initializes both clientHandler and GameBoard objects
 #############################################################################
 async def main():
-        GAME_INSTANCE
         GAME_INSTANCE = game.GameBoard(MAX_PLAYERS)
-        handler = ClientHandler(GAME_INSTANCE)
+        handler = ClientHandler(GAME_INSTANCE, MAX_PLAYERS)
         server = await asyncio.start_server(handler.handle_player, HOST, PORT)
         await server.serve_forever()
         traceback.print_exc
