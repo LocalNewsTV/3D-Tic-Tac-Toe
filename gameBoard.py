@@ -14,6 +14,13 @@ class GameBoard:
     _MATCH_ONCE_ONLY = 1
     _GRID_SIZE = 4
     _ID = 4
+    PLAY = 'P'
+    CLEAR = 'C'
+    GET = 'G'
+    OK = 'O'
+    ERROR = 'E'
+    EMPTY = '_'
+    _PLAY_REGEX = '^P[0-3][0-3][0-3][0-3]$'
     
     def __init__(self, NUM_PLAYERS,):
         self._TOKEN_MAX = NUM_PLAYERS
@@ -81,7 +88,7 @@ class GameBoard:
     ###########################################################################
     def _makePlayerMove(self):
         layer, row, column, token = self._playerInput 
-        if self._board[layer][row][column] == '_':
+        if self._board[layer][row][column] == self.EMPTY:
             self._board[layer][row][column] = token
             return True
         else:
@@ -93,13 +100,13 @@ class GameBoard:
     # @returns {boolean} - the specified space on the board is available
     ###########################################################################
     def checkPositionAvailable(self, data):
-        userRequestedTurn = len(re.findall('^P[0-3][0-3][0-3][0-3]$', ('').join(data))) == self._MATCH_ONCE_ONLY
+        userRequestedTurn = len(re.findall(self._PLAY_REGEX, ('').join(data))) == self._MATCH_ONCE_ONLY
         if(userRequestedTurn):
             turn = data.copy()
             turn.pop(0)
             turn = list(map(int, turn))
             layer, row, column, token = turn 
-            return self._board[layer][row][column] == '_'
+            return self._board[layer][row][column] == self.EMPTY
         else:
             return False
 
@@ -242,7 +249,7 @@ class GameBoard:
     # @param userTurn {Array} - Command received by player, formatted as an array
     ###########################################################################
     def gamePlay(self, id, userTurn):
-        userRequestedTurn = len(re.findall('^P[0-3][0-3][0-3][0-3]$', ('').join(userTurn))) == self._MATCH_ONCE_ONLY
+        userRequestedTurn = len(re.findall(self._PLAY_REGEX, ('').join(userTurn))) == self._MATCH_ONCE_ONLY
         
         if (userRequestedTurn and self._currentTurn == id and int(userTurn[self._ID]) == id):
             userTurn.pop(0) #Remove the P from {userTurn}
@@ -250,14 +257,14 @@ class GameBoard:
             if (not self._isWinner and self._makePlayerMove()):
                 self._updateTurn()
                 self._checkForWins()
-                return 'O'
-            return 'E'
+                return self.OK
+            return self.ERROR
 
-        elif (userTurn[self._COMMAND] == 'G'):
+        elif (userTurn[self._COMMAND] == self.GET):
             return self._displayGameBoard()
             
-        elif (userTurn[self._COMMAND] == 'C'):
+        elif (userTurn[self._COMMAND] == self.CLEAR):
             self._newGame()
-            return 'O'
+            return self.OK
         else:
-            return 'E'
+            return self.ERROR

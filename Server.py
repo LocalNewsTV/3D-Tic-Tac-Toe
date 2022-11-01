@@ -19,6 +19,11 @@ MAX_PLAYERS = 3
 class ClientHandler:
     FIRST = 0
     LAST = -1
+    OK = 'O'
+    REJECT = 'R'
+    ERROR = 'E'
+    PLAY = "P"
+    TERMINATOR = '*'
     def __init__(self, TTT, MAX_PLAYERS):
         self._MAX_PLAYERS = MAX_PLAYERS
         self._players = []
@@ -74,22 +79,22 @@ class ClientHandler:
                     userInput = list(userInput)
                     self._logger.debug("User sent:" + str(userInput))
                     userInput.pop()
-                    self._logger.debug("Player ", id, "made turn.")
+                    self._logger.debug(f"Player {str(id)} made turn.")
 
-                    if(userInput[self.FIRST] == "P"):
+                    if(userInput[self.FIRST] == self.PLAY):
                         if (self._gameBoard.checkPositionAvailable(userInput)):
                             response = self._gameBoard.gamePlay(id, userInput)
                         else:
                             self._logger.debug("P - was invalid")
-                            response = 'E'
+                            response = self.ERROR
                     else:
                         response = self._gameBoard.gamePlay(id, userInput)
                     
-                    response = (response + '*').encode('utf-8')
+                    response = (response + self.TERMINATOR).encode('utf-8')
                     writer.write(response)
                     await writer.drain()
             else:
-                response = "R*".encode('utf-8')
+                response = (self.REJECT + self.TERMINATOR).encode('utf-8')
                 writer.write(response)
                 await writer.drain()
                 writer.close()
