@@ -1,9 +1,6 @@
 #!/usr/bin/python3
 
 #############################################################################
-#    Author: Matthew Logan
-#    Student Number: C0404259
-#    Class: ICS226, Fall 2022
 #    Description: Class Object for game of 3D Tic Tac Toe using 4x4x4 grid
 #    Parameters: NUM_PLAYERS {integer} - Number of players in this session
 #############################################################################
