@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 #############################################################################
-#    Author: Matthew Logan
-#    Student Number: C0404259
-#    Class: ICS226, Fall 2022
 #    Description: Server for 3D Tic Tac Toe
 #############################################################################
 import gameBoard as game
